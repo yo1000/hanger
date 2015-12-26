@@ -1,0 +1,139 @@
+<% if has_role?(:user, @project) %>
+    <style>
+      .hanger-widget {
+        height: 240px;
+        overflow: scroll;
+      }
+      .hanger-data-times {
+        text-align: right;
+        display: inline-block;
+      }
+      .hanger-data-times-min {
+        width: 3.5em;
+      }
+      .hanger-data-times-hour {
+        width: 2.35em;
+      }
+    </style>
+    <div id="hanger-widget-<%= widget.id.to_s -%>" class="hanger-widget">
+      <table class="data">
+        <thead>
+        <th><h3><%= message('widget.hanger.name') -%></h3></th>
+        <th class="right"><i class="icon-severity-blocker"></i></th>
+        <th class="right"><i class="icon-severity-critical"></i></th>
+        <th class="right"><i class="icon-severity-major"></i></th>
+        <th class="right"><i class="icon-severity-minor"></i></th>
+        <th class="right"><i class="icon-severity-info"></i></th>
+        <th class="right"><h3><%= message('widget.hanger.header.debt') -%></h3></th>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <script type="text/javascript">
+      var hangerWidget<%= widget.id.to_s -%>Scope = function () {
+        var projectKey = '<%= h(@project.key) -%>';
+        var issues = '<%= h(widget_properties["issues"]) -%>';
+        var severities = '<%= h(widget_properties["severities"]) -%>';
+
+        var $ = jQuery;
+        var debtToMin = function (debt) {
+          var times = debt;
+          var min = 0;
+
+          if (times && times.match(/[0-9]+d/)) {
+            var debts = times.split('d');
+            min += (debts[0] * 24 * 60);
+            times = debts[1];
+          }
+
+          if (times && times.match(/[0-9]+h/)) {
+            var debts = times.split('h');
+            min += (debts[0] * 60);
+            times = debts[1];
+          }
+
+          if (times && times.match(/[0-9]+min/)) {
+            var debts = times.split('min');
+            min += (debts[0] * 1);
+          }
+
+          return min;
+        };
+
+        var minToDebt = function(min) {
+          var times = min;
+          var debt = '';
+
+          var days = Math.floor(times / (24 * 60));
+          times %= (24 * 60);
+          if (days > 0) {
+            debt += '<span class="hanger-data-times">' + days + 'd</span>';
+          }
+
+          var hours = Math.floor(times / 60);
+          times %= 60;
+          if (debt != '' || hours > 0) {
+            debt += '<span class="hanger-data-times hanger-data-times-hour">' + hours + 'h</span>';
+          }
+
+          return debt + '<span class="hanger-data-times hanger-data-times-min">' + times + 'min</span>';
+        };
+
+        $.ajax({
+          url: '/api/issues/search?projectKeys=' + projectKey + '&ps=' + issues + '&severities=' + severities
+        }).done(function(data) {
+          var authorsHash = {};
+
+          data.issues.forEach(function (elem) {
+            if (!(elem.author in authorsHash)) {
+              authorsHash[elem.author] = {
+                'debt' : 0,
+                'severity' : {}
+              };
+            }
+            authorsHash[elem.author]['debt'] += debtToMin(elem.debt);
+
+            if (!(elem.severity in authorsHash[elem.author]['severity'])) {
+              authorsHash[elem.author]['severity'][elem.severity] = 0;
+            }
+            authorsHash[elem.author]['severity'][elem.severity] += 1;
+          });
+
+          var authorsArray = [];
+          $.each(authorsHash, function (key, val) {
+            authorsArray.push({
+              'author' : key,
+              'debt' : val.debt,
+              'severity' : val.severity
+            });
+          });
+
+          var $tbody = $('#hanger-widget-<%= widget.id.to_s -%> tbody');
+          authorsArray.sort(function (x, y) { return y.debt - x.debt });
+
+          var even = true;
+          authorsArray.forEach(function(elem) {
+            var $tr = $('<tr class="' + (even ? 'even' : 'odd') + '"></tr>');
+            even = !even;
+
+            var $tdAuthor = $('<td>' + elem.author + '</td>');
+            var $tdBlocker = $('<td class="right">' + ('BLOCKER' in elem.severity ? elem.severity.BLOCKER : 0) + '</td>');
+            var $tdCritical = $('<td class="right">' + ('CRITICAL' in elem.severity ? elem.severity.CRITICAL : 0) + '</td>');
+            var $tdMajor = $('<td class="right">' + ('MAJOR' in elem.severity ? elem.severity.MAJOR : 0) + '</td>');
+            var $tdMinor = $('<td class="right">' + ('MINOR' in elem.severity ? elem.severity.MINOR : 0) + '</td>');
+            var $tdInfo = $('<td class="right">' + ('INFO' in elem.severity ? elem.severity.INFO : 0) + '</td>');
+            var $tdDebt = $('<td class="right">' + minToDebt(elem.debt) + '</td>');
+
+            $tr.append($tdAuthor).append($tdBlocker).append($tdCritical).append($tdMajor)
+                .append($tdMinor).append($tdInfo).append($tdDebt);
+            $tbody.append($tr);
+          });
+        }).fail(function ($xhr, textStatus, errorThrown) {
+          console.log(textStatus);
+          console.log(errorThrown);
+        });
+      };
+
+      hangerWidget<%= widget.id.to_s -%>Scope();
+    </script>
+<% end %>
