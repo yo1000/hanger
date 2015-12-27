@@ -1,5 +1,5 @@
 # hanger
-Adds a widget to summarize each author technical debt.
+Add the SonarQube widget to summarize each author of technical debt.
 
 ## Requirements
 
