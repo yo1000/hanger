@@ -17,23 +17,15 @@
     </style>
     <div id="hanger-widget-<%= widget.id.to_s -%>" class="hanger-widget">
       <table class="data">
-        <thead>
-        <th><h3><%= message('widget.hanger.name') -%></h3></th>
-        <th class="right"><i class="icon-severity-blocker"></i></th>
-        <th class="right"><i class="icon-severity-critical"></i></th>
-        <th class="right"><i class="icon-severity-major"></i></th>
-        <th class="right"><i class="icon-severity-minor"></i></th>
-        <th class="right"><i class="icon-severity-info"></i></th>
-        <th class="right"><h3><%= message('widget.hanger.header.debt') -%></h3></th>
-        </thead>
+        <thead></thead>
         <tbody></tbody>
       </table>
     </div>
     <script type="text/javascript">
       var hangerWidget<%= widget.id.to_s -%>Scope = function () {
         var projectKey = '<%= h(@project.key) -%>';
-        var issues = '<%= h(widget_properties["issues"]) -%>';
-        var severities = '<%= h(widget_properties["severities"]) -%>';
+        var issues = '<%= h(widget_properties["Issues"]) -%>';
+        var severities = '<%= h(widget_properties["Severities"]) -%>';
 
         var $ = jQuery;
         var debtToMin = function (debt) {
@@ -108,6 +100,31 @@
             });
           });
 
+          var $thead = $('#hanger-widget-<%= widget.id.to_s -%> thead');
+          $thead.append('<th><h3><%= message('widget.hanger.name') -%></h3></th>');
+
+          if (/BLOCKER/.test(severities)) {
+            $thead.append('<th class="right"><i class="icon-severity-blocker"></i></th>');
+          }
+
+          if (/CRITICAL/.test(severities)) {
+            $thead.append('<th class="right"><i class="icon-severity-critical"></i></th>');
+          }
+
+          if (/MAJOR/.test(severities)) {
+            $thead.append('<th class="right"><i class="icon-severity-major"></i></th>');
+          }
+
+          if (/MINOR/.test(severities)) {
+            $thead.append('<th class="right"><i class="icon-severity-minor"></i></th>');
+          }
+
+          if (/INFO/.test(severities)) {
+            $thead.append('<th class="right"><i class="icon-severity-info"></i></th>');
+          }
+
+          $thead.append('<th class="right"><h3><%= message('widget.hanger.header.debt') -%></h3></th>');
+
           var $tbody = $('#hanger-widget-<%= widget.id.to_s -%> tbody');
           authorsArray.sort(function (x, y) { return y.debt - x.debt });
 
@@ -116,16 +133,29 @@
             var $tr = $('<tr class="' + (even ? 'even' : 'odd') + '"></tr>');
             even = !even;
 
-            var $tdAuthor = $('<td>' + elem.author + '</td>');
-            var $tdBlocker = $('<td class="right">' + ('BLOCKER' in elem.severity ? elem.severity.BLOCKER : 0) + '</td>');
-            var $tdCritical = $('<td class="right">' + ('CRITICAL' in elem.severity ? elem.severity.CRITICAL : 0) + '</td>');
-            var $tdMajor = $('<td class="right">' + ('MAJOR' in elem.severity ? elem.severity.MAJOR : 0) + '</td>');
-            var $tdMinor = $('<td class="right">' + ('MINOR' in elem.severity ? elem.severity.MINOR : 0) + '</td>');
-            var $tdInfo = $('<td class="right">' + ('INFO' in elem.severity ? elem.severity.INFO : 0) + '</td>');
-            var $tdDebt = $('<td class="right">' + minToDebt(elem.debt) + '</td>');
+            $tr.append('<td>' + elem.author + '</td>');
 
-            $tr.append($tdAuthor).append($tdBlocker).append($tdCritical).append($tdMajor)
-                .append($tdMinor).append($tdInfo).append($tdDebt);
+            if (/BLOCKER/.test(severities)) {
+              $tr.append('<td class="right">' + ('BLOCKER' in elem.severity ? elem.severity.BLOCKER : 0) + '</td>');
+            }
+
+            if (/CRITICAL/.test(severities)) {
+              $tr.append('<td class="right">' + ('CRITICAL' in elem.severity ? elem.severity.CRITICAL : 0) + '</td>');
+            }
+
+            if (/MAJOR/.test(severities)) {
+              $tr.append('<td class="right">' + ('MAJOR' in elem.severity ? elem.severity.MAJOR : 0) + '</td>');
+            }
+
+            if (/MINOR/.test(severities)) {
+              $tr.append('<td class="right">' + ('MINOR' in elem.severity ? elem.severity.MINOR : 0) + '</td>');
+            }
+
+            if (/INFO/.test(severities)) {
+              $tr.append('<td class="right">' + ('INFO' in elem.severity ? elem.severity.INFO : 0) + '</td>');
+            }
+
+            $tr.append('<td class="right">' + minToDebt(elem.debt) + '</td>');
             $tbody.append($tr);
           });
         }).fail(function ($xhr, textStatus, errorThrown) {

@@ -19,8 +19,8 @@ import org.sonar.api.web.*;
                 defaultValue = "BLOCKER,CRITICAL,MAJOR")
 })
 public class HangarWidget extends AbstractRubyTemplate implements RubyRailsWidget {
-    public static final String ISSUES_PROPERTY = "issues";
-    public static final String SEVERITIES_PROPERTY = "severities";
+    public static final String ISSUES_PROPERTY = "Issues";
+    public static final String SEVERITIES_PROPERTY = "Severities";
 
     @Override
     protected String getTemplatePath() {
