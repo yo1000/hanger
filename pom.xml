@@ -33,7 +33,7 @@
                     <pluginClass>com.yo1000.sonarqube.hanger.HangerPlugin</pluginClass>
 
                     <!-- advanced properties can be set here. See paragraph "Advanced Build Properties". -->
-                    <pluginDescription>Display the technical debt by authors</pluginDescription>
+                    <pluginDescription>Widget to summarize each author technical debt</pluginDescription>
                 </configuration>
             </plugin>
         </plugins>
