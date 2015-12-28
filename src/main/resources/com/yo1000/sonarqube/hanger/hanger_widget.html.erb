@@ -94,36 +94,40 @@
           var authorsArray = [];
           $.each(authorsHash, function (key, val) {
             authorsArray.push({
-              'author' : key,
-              'debt' : val.debt,
-              'severity' : val.severity
+              'author': key,
+              'debt': val.debt,
+              'severity': val.severity
             });
           });
 
           var $thead = $('#hanger-widget-<%= widget.id.to_s -%> thead');
-          $thead.append('<th><h3><%= message('widget.hanger.name') -%></h3></th>');
+          var $tr = $('<tr></tr>');
+
+          $tr.append('<th><h3><%= message('widget.hanger.name') -%></h3></th>');
 
           if (/BLOCKER/.test(severities)) {
-            $thead.append('<th class="right"><i class="icon-severity-blocker"></i></th>');
+            $tr.append('<th class="right"><i class="icon-severity-blocker"></i></th>');
           }
 
           if (/CRITICAL/.test(severities)) {
-            $thead.append('<th class="right"><i class="icon-severity-critical"></i></th>');
+            $tr.append('<th class="right"><i class="icon-severity-critical"></i></th>');
           }
 
           if (/MAJOR/.test(severities)) {
-            $thead.append('<th class="right"><i class="icon-severity-major"></i></th>');
+            $tr.append('<th class="right"><i class="icon-severity-major"></i></th>');
           }
 
           if (/MINOR/.test(severities)) {
-            $thead.append('<th class="right"><i class="icon-severity-minor"></i></th>');
+            $tr.append('<th class="right"><i class="icon-severity-minor"></i></th>');
           }
 
           if (/INFO/.test(severities)) {
-            $thead.append('<th class="right"><i class="icon-severity-info"></i></th>');
+            $tr.append('<th class="right"><i class="icon-severity-info"></i></th>');
           }
 
-          $thead.append('<th class="right"><h3><%= message('widget.hanger.header.debt') -%></h3></th>');
+          $tr.append('<th class="right"><h3><%= message('widget.hanger.debt') -%></h3></th>');
+
+          $thead.append($tr);
 
           var $tbody = $('#hanger-widget-<%= widget.id.to_s -%> tbody');
           authorsArray.sort(function (x, y) { return y.debt - x.debt });

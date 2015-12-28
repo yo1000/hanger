@@ -10,18 +10,15 @@ import org.sonar.api.web.*;
 @WidgetCategory({"Technical Debt"})
 @WidgetProperties({
         @WidgetProperty(
-                key = HangarWidget.ISSUES_PROPERTY,
+                key = "Issues",
                 description = "The number of issues to be summarized",
                 defaultValue = "1000"),
         @WidgetProperty(
-                key = HangarWidget.SEVERITIES_PROPERTY,
+                key = "Severities",
                 description = "The items of severities to be summarized",
                 defaultValue = "BLOCKER,CRITICAL,MAJOR")
 })
 public class HangarWidget extends AbstractRubyTemplate implements RubyRailsWidget {
-    public static final String ISSUES_PROPERTY = "Issues";
-    public static final String SEVERITIES_PROPERTY = "Severities";
-
     @Override
     protected String getTemplatePath() {
         return "/com/yo1000/sonarqube/hanger/hanger_widget.html.erb";
