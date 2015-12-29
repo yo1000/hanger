@@ -1,0 +1,154 @@
+<% if has_role?(:user, @project) %>
+    <style>
+      .hanger-widget<%= widget.id.to_s -%> {
+        height: 240px;
+        overflow: scroll;
+      }
+    </style>
+    <div id="hanger-widget<%= widget.id.to_s -%>" class="hanger-widget<%= widget.id.to_s -%>">
+      <div id="hanger-widget<%= widget.id.to_s -%>-loading">
+        <table class="data">
+          <thead>
+          <tr>
+            <th>
+              <span><%= message('widget.hanger.loading.process') -%>: </span>
+              <span class="resources-done"></span>
+              <span class="resources-all"></span>
+            </th>
+            <th class="right">
+              <span><%= message('widget.hanger.loading.wait') -%> </span>
+              <span class="sec"></span>
+              <span> <%= message('widget.hanger.loading.sec') -%></span></th>
+          </tr>
+          </thead>
+        </table>
+      </div>
+      <table class="data">
+        <thead></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <script type="text/javascript">
+      var widget<%= widget.id.to_s -%>Scope = function () {
+        var SCM_AUTHOR_INDEX = 1;
+        var SCM_TIMESTAMP_INDEX = 2;
+
+        var projectKey = '<%= h(@project.key) -%>';
+        var $ = jQuery;
+
+        var $spanResourcesAll = $('#hanger-widget<%= widget.id.to_s -%>-loading .resources-all');
+        var $spanResourcesDone = $('#hanger-widget<%= widget.id.to_s -%>-loading .resources-done');
+
+        var ajaxSourceScm = function (resources, callback) {
+          $spanResourcesAll.text(' / ' + resources.length);
+
+          ajaxSourceScmInner(resources, 0, {}, callback);
+        };
+
+        var ajaxSourceScmInner = function (resources, index, collections, callback) {
+          $spanResourcesDone.text(index + 1);
+
+          var resource = resources[index];
+
+          $.ajax({
+            url: '/api/sources/scm?key=' + resource.key
+          }).done(function (data) {
+            data.scm.forEach(function (elem) {
+              var author = elem[SCM_AUTHOR_INDEX];
+              var timestamp = new Date(elem[SCM_TIMESTAMP_INDEX]);
+
+              if (!(author in collections)) {
+                collections[author] = {
+                  'commits': 0,
+                  'firstCommit': null,
+                  'lastCommit': null
+                };
+              }
+
+              collections[author]['commits']++;
+
+              if (collections[author]['firstCommit'] === null
+                  || collections[author]['firstCommit'].getTime() > timestamp.getTime()) {
+                collections[author]['firstCommit'] = timestamp;
+              }
+
+              if (collections[author]['lastCommit'] === null
+                  || collections[author]['lastCommit'].getTime() < timestamp.getTime()) {
+                collections[author]['lastCommit'] = timestamp;
+              }
+            });
+
+            if (index + 1 < resources.length) {
+              ajaxSourceScmInner(resources, index + 1, collections, callback);
+              return;
+            }
+
+            callback(collections);
+          }).fail(function ($xhr, textStatus, errorThrown) {
+            console.log(textStatus);
+            console.log(errorThrown);
+          });
+        };
+
+        var loading = function (startTime) {
+          var time = new Date().getTime();
+          setTimeout(function () {
+            var $spanLoadingSec = $('#hanger-widget<%= widget.id.to_s -%>-loading .sec');
+            if ($spanLoadingSec.length > 0) {
+              $spanLoadingSec.text(Math.ceil((time - startTime) / 1000));
+              loading(startTime);
+            }
+          }, 1000);
+        };
+
+        $.ajax({
+          url: '/api/resources?resource=' + projectKey + '&depth=-1&scopes=FIL&format=json'
+        }).done(function(data) {
+          loading(new Date().getTime());
+
+          ajaxSourceScm(data, function(authorsHash) {
+            $('#hanger-widget<%= widget.id.to_s -%>-loading').remove();
+
+            var authorsArray = [];
+            $.each(authorsHash, function (key, val) {
+              authorsArray.push({
+                'author': key,
+                'commits': val.commits,
+                'firstCommit': val.firstCommit,
+                'lastCommit': val.lastCommit
+              });
+            });
+            authorsArray.sort(function (x, y) { return y.commits - x.commits });
+
+            var $thead = $('#hanger-widget<%= widget.id.to_s -%> thead');
+            var $tr = $('<tr></tr>');
+            $tr.append('<th><h3><%= message('widget.hanger.commits.name') -%></h3></th>')
+                .append('<th class="right"><h3><%= message('widget.hanger.commits.commits') -%></h3></th>')
+                .append('<th class="right"><h3><%= message('widget.hanger.commits.first') -%></h3></th>')
+                .append('<th class="right"><h3><%= message('widget.hanger.commits.last') -%></h3></th>');
+
+            $thead.append($tr);
+
+            var $tbody = $('#hanger-widget<%= widget.id.to_s -%> tbody');
+            var even = true;
+            authorsArray.forEach(function(elem) {
+              var $tr = $('<tr class="' + (even ? 'even' : 'odd') + '"></tr>');
+              even = !even;
+
+              $tr.append('<td>' + elem.author + '</td>')
+                  .append('<td class="right">' + elem.commits + '</td>')
+                  .append('<td class="right">' + elem.firstCommit.toISOString().slice(0, 10) + '</td>')
+                  .append('<td class="right">' + elem.lastCommit.toISOString().slice(0, 10) + '</td>');
+
+              $tbody.append($tr);
+            });
+          });
+        }).fail(function ($xhr, textStatus, errorThrown) {
+          console.log(textStatus);
+          console.log(errorThrown);
+        });
+      };
+
+      widget<%= widget.id.to_s -%>Scope();
+    </script>
+<% end %>

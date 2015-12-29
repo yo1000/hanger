@@ -1,9 +1,11 @@
-package com.yo1000.sonarqube.hanger;
+package com.yo1000.sonarqube.hanger.widget;
 
 import org.sonar.api.web.*;
 
 /**
- * Created by yoichi.kikuchi on 2015/12/25.
+ * Display the technical debt by authors
+ *
+ * @author yo1000
  */
 @UserRole(UserRole.USER)
 @Description("Display the technical debt by authors")
@@ -12,20 +14,21 @@ import org.sonar.api.web.*;
         @WidgetProperty(
                 key = "Issues",
                 description = "The number of issues to be summarized",
-                defaultValue = "1000"),
+                type = WidgetPropertyType.INTEGER,
+                defaultValue = "10000"),
         @WidgetProperty(
                 key = "Severities",
                 description = "The items of severities to be summarized",
                 defaultValue = "BLOCKER,CRITICAL,MAJOR")
 })
-public class HangarWidget extends AbstractRubyTemplate implements RubyRailsWidget {
+public class DebtWidget extends AbstractRubyTemplate implements RubyRailsWidget {
     @Override
     protected String getTemplatePath() {
-        return "/com/yo1000/sonarqube/hanger/hanger_widget.html.erb";
+        return "/com/yo1000/sonarqube/hanger/widget/debt_widget.html.erb";
     }
 
     public String getId() {
-        return "hanger";
+        return "hanger.debt";
     }
 
     public String getTitle() {

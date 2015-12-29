@@ -1,0 +1,353 @@
+<% if has_role?(:user, @project) %>
+    <style>
+      .hanger-widget<%= widget.id.to_s -%> {
+        height: 240px;
+        overflow: scroll;
+      }
+      .hanger-widget<%= widget.id.to_s -%>-data-times {
+        text-align: right;
+        display: inline-block;
+      }
+      .hanger-widget<%= widget.id.to_s -%>-data-times-min {
+        width: 3.5em;
+      }
+      .hanger-widget<%= widget.id.to_s -%>-data-times-hour {
+        width: 2.35em;
+      }
+      #hanger-widget<%= widget.id.to_s -%> table.data thead tr th {
+        vertical-align: middle;
+      }
+    </style>
+    <div id="hanger-widget<%= widget.id.to_s -%>" class="hanger-widget<%= widget.id.to_s -%>">
+      <div id="hanger-widget<%= widget.id.to_s -%>-loading">
+        <table class="data">
+          <thead>
+          <tr>
+            <th>
+              <span><%= message('widget.hanger.loading.process') -%>: </span>
+              <span class="resources-done"></span>
+              <span class="resources-all"></span>
+            </th>
+            <th class="right">
+              <span><%= message('widget.hanger.loading.wait') -%> </span>
+              <span class="sec"></span>
+              <span> <%= message('widget.hanger.loading.sec') -%></span></th>
+          </tr>
+          </thead>
+        </table>
+      </div>
+      <table class="data">
+        <thead></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <script type="text/javascript">
+      var widget<%= widget.id.to_s -%>Scope = function () {
+        var SCM_AUTHOR_INDEX = 1;
+        var SCM_TIMESTAMP_INDEX = 2;
+
+        var projectKey = '<%= h(@project.key) -%>';
+        var issues = '<%= h(widget_properties["Issues"]) -%>';
+        var severities = '<%= h(widget_properties["Severities"]) -%>';
+
+        var $ = jQuery;
+
+        var $spanResourcesAll = $('#hanger-widget<%= widget.id.to_s -%>-loading .resources-all');
+        var $spanResourcesDone = $('#hanger-widget<%= widget.id.to_s -%>-loading .resources-done');
+
+        /**
+         *
+         * @param resources
+         * @param callback
+         */
+        var ajaxSourceScm = function (resources, callback) {
+          $spanResourcesAll.text(' / ' + resources.length);
+
+          ajaxSourceScmInner(resources, 0, {}, callback);
+        };
+
+        /**
+         *
+         * @param resources
+         * @param index
+         * @param collections
+         * @param callback
+         */
+        var ajaxSourceScmInner = function (resources, index, collections, callback) {
+          $spanResourcesDone.text(index + 1);
+
+          var resource = resources[index];
+
+          $.ajax({
+            url: '/api/sources/scm?key=' + resource.key
+          }).done(function (data) {
+            data.scm.forEach(function (elem) {
+              var author = elem[SCM_AUTHOR_INDEX];
+              var timestamp = new Date(elem[SCM_TIMESTAMP_INDEX]);
+
+              if (!(author in collections)) {
+                collections[author] = {
+                  'commits': 0,
+                  'firstCommit': null,
+                  'lastCommit': null
+                };
+              }
+
+              collections[author]['commits']++;
+
+              if (collections[author]['firstCommit'] === null
+                  || collections[author]['firstCommit'].getTime() > timestamp.getTime()) {
+                collections[author]['firstCommit'] = timestamp;
+              }
+
+              if (collections[author]['lastCommit'] === null
+                  || collections[author]['lastCommit'].getTime() < timestamp.getTime()) {
+                collections[author]['lastCommit'] = timestamp;
+              }
+            });
+
+            if (index + 1 < resources.length) {
+              ajaxSourceScmInner(resources, index + 1, collections, callback);
+              return;
+            }
+
+            callback(collections);
+          }).fail(function ($xhr, textStatus, errorThrown) {
+            console.log(textStatus);
+            console.log(errorThrown);
+          });
+        };
+
+        /**
+         *
+         * @param startTime
+         */
+        var loading = function (startTime) {
+          var time = new Date().getTime();
+          setTimeout(function () {
+            var $spanLoadingSec = $('#hanger-widget<%= widget.id.to_s -%>-loading .sec');
+            if ($spanLoadingSec.length > 0) {
+              $spanLoadingSec.text(Math.ceil((time - startTime) / 1000));
+              loading(startTime);
+            }
+          }, 1000);
+        };
+
+        /**
+         *
+         * @param debt
+         * @returns {number}
+         */
+        var debtToMin = function (debt) {
+          var times = debt;
+          var min = 0;
+
+          if (times && times.match(/[0-9]+d/)) {
+            var debts = times.split('d');
+            min += (debts[0] * 24 * 60);
+            times = debts[1];
+          }
+
+          if (times && times.match(/[0-9]+h/)) {
+            var debts = times.split('h');
+            min += (debts[0] * 60);
+            times = debts[1];
+          }
+
+          if (times && times.match(/[0-9]+min/)) {
+            var debts = times.split('min');
+            min += (debts[0] * 1);
+          }
+
+          return min;
+        };
+
+        /**
+         *
+         * @param min
+         * @returns {string}
+         */
+        var minToDebt = function(min) {
+          var times = min;
+          var debt = '';
+
+          var days = Math.floor(times / (24 * 60));
+          times %= (24 * 60);
+          if (days > 0) {
+            debt += '<span class="hanger-data-times">' + days + 'd</span>';
+          }
+
+          var hours = Math.floor(times / 60);
+          times %= 60;
+          if (debt != '' || hours > 0) {
+            debt += '<span class="hanger-data-times hanger-data-times-hour">' + hours + 'h</span>';
+          }
+
+          return debt + '<span class="hanger-data-times hanger-data-times-min">' + times + 'min</span>';
+        };
+
+        $.ajax({
+          url: '/api/resources?resource=' + projectKey + '&depth=-1&scopes=FIL&format=json'
+        }).done(function(data) {
+          loading(new Date().getTime());
+
+          ajaxSourceScm(data, function(authorsCommitsHash) {
+            $.ajax({
+              url: '/api/issues/search?projectKeys=' + projectKey + '&ps=' + issues + '&severities=' + severities
+            }).done(function(data) {
+              var authorsIssuesHash = {};
+
+              data.issues.forEach(function (elem) {
+                if (!(elem.author in authorsIssuesHash)) {
+                  authorsIssuesHash[elem.author] = {
+                    'debt' : 0,
+                    'severity' : {}
+                  };
+                }
+                authorsIssuesHash[elem.author]['debt'] += debtToMin(elem.debt);
+
+                if (!(elem.severity in authorsIssuesHash[elem.author]['severity'])) {
+                  authorsIssuesHash[elem.author]['severity'][elem.severity] = 0;
+                }
+                authorsIssuesHash[elem.author]['severity'][elem.severity] += 1;
+              });
+
+              var authorsArray = [];
+              $.each(authorsCommitsHash, function (key, val) {
+                var authorIssues = (key in authorsIssuesHash) ? authorsIssuesHash[key] : {
+                  'debt': 0,
+                  'severity': {
+                    'BLOCKER': 0,
+                    'CRITICAL': 0,
+                    'MAJOR': 0,
+                    'MINOR': 0,
+                    'INFO': 0
+                  }
+                };
+
+                authorsArray.push({
+                  'author': key,
+                  'commits': val.commits,
+                  'firstCommit': val.firstCommit,
+                  'lastCommit': val.lastCommit,
+                  'debt': authorIssues.debt,
+                  'severity': authorIssues.severity,
+                  'debtRatio': authorIssues.debt / val.commits
+                });
+              });
+
+              authorsArray.sort(function (x, y) { return y.debtRatio - x.debtRatio });
+
+              $('#hanger-widget<%= widget.id.to_s -%>-loading').remove();
+
+              var $thead = $('#hanger-widget<%= widget.id.to_s -%> thead');
+              var $tr = $('<tr></tr>');
+
+              $tr.append('<th><h3><%= message('widget.hanger.debtRatio.name') -%></h3></th>');
+
+              <% if (widget_properties["SeveritiesDisplay"]) %>
+              if (/BLOCKER/.test(severities)) {
+                $tr.append('<th class="right"><i class="icon-severity-blocker"></i></th>');
+              }
+
+              if (/CRITICAL/.test(severities)) {
+                $tr.append('<th class="right"><i class="icon-severity-critical"></i></th>');
+              }
+
+              if (/MAJOR/.test(severities)) {
+                $tr.append('<th class="right"><i class="icon-severity-major"></i></th>');
+              }
+
+              if (/MINOR/.test(severities)) {
+                $tr.append('<th class="right"><i class="icon-severity-minor"></i></th>');
+              }
+
+              if (/INFO/.test(severities)) {
+                $tr.append('<th class="right"><i class="icon-severity-info"></i></th>');
+              }
+              <% end %>
+
+              <% if (widget_properties["CommitsDisplay"]) %>
+              $tr.append('<th class="right"><h3><%= message('widget.hanger.debtRatio.commits') -%></h3></th>');
+              <% end %>
+
+              <% if (widget_properties["DebtDisplay"]) %>
+              $tr.append('<th class="right"><h3><%= message('widget.hanger.debtRatio.debt') -%></h3></th>');
+              <% end %>
+
+              $tr.append('<th class="right"><h3><%= message('widget.hanger.debtRatio.ratio') -%></h3></th>');
+
+              <% if (widget_properties["FirstCommitDisplay"]) %>
+              $tr.append('<th class="right"><h3><%= message('widget.hanger.debtRatio.first') -%></h3></th>');
+              <% end %>
+
+              <% if (widget_properties["LastCommitDisplay"]) %>
+              $tr.append('<th class="right"><h3><%= message('widget.hanger.debtRatio.last') -%></h3></th>');
+              <% end %>
+
+              $thead.append($tr);
+
+              var $tbody = $('#hanger-widget<%= widget.id.to_s -%> tbody');
+              var even = true;
+              authorsArray.forEach(function(elem) {
+                var $tr = $('<tr class="' + (even ? 'even' : 'odd') + '"></tr>');
+                even = !even;
+
+                $tr.append('<td>' + elem.author + '</td>');
+
+                <% if (widget_properties["SeveritiesDisplay"]) %>
+                if (/BLOCKER/.test(severities)) {
+                  $tr.append('<td class="right">' + ('BLOCKER' in elem.severity ? elem.severity.BLOCKER : 0) + '</td>');
+                }
+
+                if (/CRITICAL/.test(severities)) {
+                  $tr.append('<td class="right">' + ('CRITICAL' in elem.severity ? elem.severity.CRITICAL : 0) + '</td>');
+                }
+
+                if (/MAJOR/.test(severities)) {
+                  $tr.append('<td class="right">' + ('MAJOR' in elem.severity ? elem.severity.MAJOR : 0) + '</td>');
+                }
+
+                if (/MINOR/.test(severities)) {
+                  $tr.append('<td class="right">' + ('MINOR' in elem.severity ? elem.severity.MINOR : 0) + '</td>');
+                }
+
+                if (/INFO/.test(severities)) {
+                  $tr.append('<td class="right">' + ('INFO' in elem.severity ? elem.severity.INFO : 0) + '</td>');
+                }
+                <% end %>
+
+                <% if (widget_properties["CommitsDisplay"]) %>
+                $tr.append('<td class="right">' + elem.commits + '</td>');
+                <% end %>
+
+                <% if (widget_properties["DebtDisplay"]) %>
+                $tr.append('<td class="right">' + minToDebt(elem.debt) + '</td>');
+                <% end %>
+
+                $tr.append('<td class="right">' + elem.debtRatio.toFixed(2) + '</td>');
+
+                <% if (widget_properties["FirstCommitDisplay"]) %>
+                $tr.append('<td class="right">' + elem.firstCommit.toISOString().slice(0, 10) + '</td>');
+                <% end %>
+
+                <% if (widget_properties["LastCommitDisplay"]) %>
+                $tr.append('<td class="right">' + elem.lastCommit.toISOString().slice(0, 10) + '</td>');
+                <% end %>
+
+                $tbody.append($tr);
+              });
+            }).fail(function ($xhr, textStatus, errorThrown) {
+              console.log(textStatus);
+              console.log(errorThrown);
+            });
+          }); // #ajaxSourceScm callback
+        }).fail(function ($xhr, textStatus, errorThrown) {
+          console.log(textStatus);
+          console.log(errorThrown);
+        });
+      };
+
+      widget<%= widget.id.to_s -%>Scope();
+    </script>
+<% end %>

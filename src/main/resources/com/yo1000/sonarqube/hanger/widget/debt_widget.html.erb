@@ -1,24 +1,24 @@
 <% if has_role?(:user, @project) %>
     <style>
-      .hanger-widget {
+      .hanger-widget<%= widget.id.to_s -%> {
         height: 240px;
         overflow: scroll;
       }
-      .hanger-data-times {
+      .hanger-widget<%= widget.id.to_s -%>-data-times {
         text-align: right;
         display: inline-block;
       }
-      .hanger-data-times-min {
+      .hanger-widget<%= widget.id.to_s -%>-data-times-min {
         width: 3.5em;
       }
-      .hanger-data-times-hour {
+      .hanger-widget<%= widget.id.to_s -%>-data-times-hour {
         width: 2.35em;
       }
-      #hanger-widget-<%= widget.id.to_s -%> table.data thead tr th {
+      #hanger-widget<%= widget.id.to_s -%> table.data thead tr th {
         vertical-align: middle;
       }
     </style>
-    <div id="hanger-widget-<%= widget.id.to_s -%>" class="hanger-widget">
+    <div id="hanger-widget<%= widget.id.to_s -%>" class="hanger-widget<%= widget.id.to_s -%>">
       <table class="data">
         <thead></thead>
         <tbody></tbody>
@@ -103,10 +103,10 @@
             });
           });
 
-          var $thead = $('#hanger-widget-<%= widget.id.to_s -%> thead');
+          var $thead = $('#hanger-widget<%= widget.id.to_s -%> thead');
           var $tr = $('<tr></tr>');
 
-          $tr.append('<th><h3><%= message('widget.hanger.name') -%></h3></th>');
+          $tr.append('<th><h3><%= message('widget.hanger.debt.name') -%></h3></th>');
 
           if (/BLOCKER/.test(severities)) {
             $tr.append('<th class="right"><i class="icon-severity-blocker"></i></th>');
@@ -128,11 +128,11 @@
             $tr.append('<th class="right"><i class="icon-severity-info"></i></th>');
           }
 
-          $tr.append('<th class="right"><h3><%= message('widget.hanger.debt') -%></h3></th>');
+          $tr.append('<th class="right"><h3><%= message('widget.hanger.debt.debt') -%></h3></th>');
 
           $thead.append($tr);
 
-          var $tbody = $('#hanger-widget-<%= widget.id.to_s -%> tbody');
+          var $tbody = $('#hanger-widget<%= widget.id.to_s -%> tbody');
           authorsArray.sort(function (x, y) { return y.debt - x.debt });
 
           var even = true;
