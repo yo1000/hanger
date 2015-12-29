@@ -1,5 +1,5 @@
 # hanger
-Add the SonarQube widget to summarize each author of technical debt.
+Add the SonarQube widgets to summarize each author of technical debt.
 
 ## Requirements
 
@@ -9,7 +9,7 @@ Add the SonarQube widget to summarize each author of technical debt.
 
 ```
 $ mvn clean package
-$ mv target/hanger-1.0-SNAPSHOT.jar {sonarqube-home}/extensions/plugins/
+$ mv target/hanger-*.jar {sonarqube-home}/extensions/plugins/
 $ {sonarqube-home}/bin/{your-os}/sonar.sh stop
 $ {sonarqube-home}/bin/{your-os}/sonar.sh start
 ```
