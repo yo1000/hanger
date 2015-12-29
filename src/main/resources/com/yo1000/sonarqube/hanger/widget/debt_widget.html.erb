@@ -62,16 +62,16 @@
           var days = Math.floor(times / (24 * 60));
           times %= (24 * 60);
           if (days > 0) {
-            debt += '<span class="hanger-data-times">' + days + 'd</span>';
+            debt += '<span class="hanger-widget<%= widget.id.to_s -%>-data-times">' + days + 'd</span>';
           }
 
           var hours = Math.floor(times / 60);
           times %= 60;
           if (debt != '' || hours > 0) {
-            debt += '<span class="hanger-data-times hanger-data-times-hour">' + hours + 'h</span>';
+            debt += '<span class="hanger-widget<%= widget.id.to_s -%>-data-times hanger-widget<%= widget.id.to_s -%>-data-times-hour">' + hours + 'h</span>';
           }
 
-          return debt + '<span class="hanger-data-times hanger-data-times-min">' + times + 'min</span>';
+          return debt + '<span class="hanger-widget<%= widget.id.to_s -%>-data-times hanger-widget<%= widget.id.to_s -%>-data-times-min">' + times + 'min</span>';
         };
 
         $.ajax({
