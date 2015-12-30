@@ -21,6 +21,16 @@ import org.sonar.api.web.*;
                 description = "The items of severities to be summarized",
                 defaultValue = "BLOCKER,CRITICAL,MAJOR"),
         @WidgetProperty(
+                key = "CommitsThreshold",
+                description = "The threshold of commits",
+                type = WidgetPropertyType.INTEGER,
+                defaultValue = "0"),
+        @WidgetProperty(
+                key = "DebtDisplay",
+                description = "Display the debt",
+                type = WidgetPropertyType.BOOLEAN,
+                defaultValue = "true"),
+        @WidgetProperty(
                 key = "SeveritiesDisplay",
                 description = "Display the commits",
                 type = WidgetPropertyType.BOOLEAN,
@@ -28,11 +38,6 @@ import org.sonar.api.web.*;
         @WidgetProperty(
                 key = "CommitsDisplay",
                 description = "Display the commits",
-                type = WidgetPropertyType.BOOLEAN,
-                defaultValue = "true"),
-        @WidgetProperty(
-                key = "DebtDisplay",
-                description = "Display the debt",
                 type = WidgetPropertyType.BOOLEAN,
                 defaultValue = "true"),
         @WidgetProperty(

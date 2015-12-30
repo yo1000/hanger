@@ -49,6 +49,7 @@
         var projectKey = '<%= h(@project.key) -%>';
         var issues = '<%= h(widget_properties["Issues"]) -%>';
         var severities = '<%= h(widget_properties["Severities"]) -%>';
+        var commitsThreshold = <%= h(widget_properties["CommitsThreshold"]) -%>;
 
         var $ = jQuery;
 
@@ -214,6 +215,10 @@
 
               var authorsArray = [];
               $.each(authorsCommitsHash, function (key, val) {
+                if (val.commits < commitsThreshold) {
+                  return;
+                }
+
                 var authorIssues = (key in authorsIssuesHash) ? authorsIssuesHash[key] : {
                   'debt': 0,
                   'severity': {
