@@ -4,6 +4,13 @@
         height: 240px;
         overflow: scroll;
       }
+      #hanger-widget<%= widget.id.to_s -%> table.data thead tr th.author h3,
+      #hanger-widget<%= widget.id.to_s -%> table.data tbody tr td.author p {
+        width: 240px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
     </style>
     <div id="hanger-widget<%= widget.id.to_s -%>" class="hanger-widget<%= widget.id.to_s -%>">
       <div id="hanger-widget<%= widget.id.to_s -%>-loading">
@@ -122,10 +129,10 @@
 
             var $thead = $('#hanger-widget<%= widget.id.to_s -%> thead');
             var $tr = $('<tr></tr>');
-            $tr.append('<th><h3><%= message('widget.hanger.commits.name') -%></h3></th>')
-                .append('<th class="right"><h3><%= message('widget.hanger.commits.commits') -%></h3></th>')
-                .append('<th class="right"><h3><%= message('widget.hanger.commits.first') -%></h3></th>')
-                .append('<th class="right"><h3><%= message('widget.hanger.commits.last') -%></h3></th>');
+            $tr.append('<th class="author"><h3><%= message('widget.hanger.commits.name') -%></h3></th>')
+                .append('<th class="commits right"><h3><%= message('widget.hanger.commits.commits') -%></h3></th>')
+                .append('<th class="first-commit right"><h3><%= message('widget.hanger.commits.first') -%></h3></th>')
+                .append('<th class="last-commit right"><h3><%= message('widget.hanger.commits.last') -%></h3></th>');
 
             $thead.append($tr);
 
@@ -135,10 +142,10 @@
               var $tr = $('<tr class="' + (even ? 'even' : 'odd') + '"></tr>');
               even = !even;
 
-              $tr.append('<td>' + elem.author + '</td>')
-                  .append('<td class="right">' + elem.commits + '</td>')
-                  .append('<td class="right">' + elem.firstCommit.toISOString().slice(0, 10) + '</td>')
-                  .append('<td class="right">' + elem.lastCommit.toISOString().slice(0, 10) + '</td>');
+              $tr.append('<td class="author"><p>' + elem.author + '</p></td>')
+                  .append('<td class="commits right"><p>' + elem.commits + '</p></td>')
+                  .append('<td class="first-commit right"><p>' + elem.firstCommit.toISOString().slice(0, 10) + '</p></td>')
+                  .append('<td class="last-commit right"><p>' + elem.lastCommit.toISOString().slice(0, 10) + '</p></td>');
 
               $tbody.append($tr);
             });

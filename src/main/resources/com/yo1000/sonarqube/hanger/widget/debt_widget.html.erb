@@ -17,6 +17,13 @@
       #hanger-widget<%= widget.id.to_s -%> table.data thead tr th {
         vertical-align: middle;
       }
+      #hanger-widget<%= widget.id.to_s -%> table.data thead tr th.author h3,
+      #hanger-widget<%= widget.id.to_s -%> table.data tbody tr td.author p {
+        width: 240px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
     </style>
     <div id="hanger-widget<%= widget.id.to_s -%>" class="hanger-widget<%= widget.id.to_s -%>">
       <table class="data">
@@ -106,29 +113,29 @@
           var $thead = $('#hanger-widget<%= widget.id.to_s -%> thead');
           var $tr = $('<tr></tr>');
 
-          $tr.append('<th><h3><%= message('widget.hanger.debt.name') -%></h3></th>');
+          $tr.append('<th class="author"><h3><%= message('widget.hanger.debt.name') -%></h3></th>');
 
           if (/BLOCKER/.test(severities)) {
-            $tr.append('<th class="right"><i class="icon-severity-blocker"></i></th>');
+            $tr.append('<th class="severity right"><h3><i class="icon-severity-blocker"></i></h3></th>');
           }
 
           if (/CRITICAL/.test(severities)) {
-            $tr.append('<th class="right"><i class="icon-severity-critical"></i></th>');
+            $tr.append('<th class="severity right"><h3><i class="icon-severity-critical"></i></h3></th>');
           }
 
           if (/MAJOR/.test(severities)) {
-            $tr.append('<th class="right"><i class="icon-severity-major"></i></th>');
+            $tr.append('<th class="severity right"><h3><i class="icon-severity-major"></i></h3></th>');
           }
 
           if (/MINOR/.test(severities)) {
-            $tr.append('<th class="right"><i class="icon-severity-minor"></i></th>');
+            $tr.append('<th class="severity right"><h3><i class="icon-severity-minor"></i></h3></th>');
           }
 
           if (/INFO/.test(severities)) {
-            $tr.append('<th class="right"><i class="icon-severity-info"></i></th>');
+            $tr.append('<th class="severity right"><h3><i class="icon-severity-info"></i></h3></th>');
           }
 
-          $tr.append('<th class="right"><h3><%= message('widget.hanger.debt.debt') -%></h3></th>');
+          $tr.append('<th class="debt right"><h3><%= message('widget.hanger.debt.debt') -%></h3></th>');
 
           $thead.append($tr);
 
@@ -140,29 +147,29 @@
             var $tr = $('<tr class="' + (even ? 'even' : 'odd') + '"></tr>');
             even = !even;
 
-            $tr.append('<td>' + elem.author + '</td>');
+            $tr.append('<td class="author"><p>' + elem.author + '</p></td>');
 
             if (/BLOCKER/.test(severities)) {
-              $tr.append('<td class="right">' + ('BLOCKER' in elem.severity ? elem.severity.BLOCKER : 0) + '</td>');
+              $tr.append('<td class="severity right"><p>' + ('BLOCKER' in elem.severity ? elem.severity.BLOCKER : 0) + '</p></td>');
             }
 
             if (/CRITICAL/.test(severities)) {
-              $tr.append('<td class="right">' + ('CRITICAL' in elem.severity ? elem.severity.CRITICAL : 0) + '</td>');
+              $tr.append('<td class="severity right"><p>' + ('CRITICAL' in elem.severity ? elem.severity.CRITICAL : 0) + '</p></td>');
             }
 
             if (/MAJOR/.test(severities)) {
-              $tr.append('<td class="right">' + ('MAJOR' in elem.severity ? elem.severity.MAJOR : 0) + '</td>');
+              $tr.append('<td class="severity right"><p>' + ('MAJOR' in elem.severity ? elem.severity.MAJOR : 0) + '</p></td>');
             }
 
             if (/MINOR/.test(severities)) {
-              $tr.append('<td class="right">' + ('MINOR' in elem.severity ? elem.severity.MINOR : 0) + '</td>');
+              $tr.append('<td class="severity right"><p>' + ('MINOR' in elem.severity ? elem.severity.MINOR : 0) + '</p></td>');
             }
 
             if (/INFO/.test(severities)) {
-              $tr.append('<td class="right">' + ('INFO' in elem.severity ? elem.severity.INFO : 0) + '</td>');
+              $tr.append('<td class="severity right"><p>' + ('INFO' in elem.severity ? elem.severity.INFO : 0) + '</p></td>');
             }
 
-            $tr.append('<td class="right">' + minToDebt(elem.debt) + '</td>');
+            $tr.append('<td class="debt right"><p>' + minToDebt(elem.debt) + '</p></td>');
             $tbody.append($tr);
           });
         }).fail(function ($xhr, textStatus, errorThrown) {

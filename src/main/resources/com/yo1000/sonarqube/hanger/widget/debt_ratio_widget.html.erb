@@ -17,6 +17,13 @@
       #hanger-widget<%= widget.id.to_s -%> table.data thead tr th {
         vertical-align: middle;
       }
+      #hanger-widget<%= widget.id.to_s -%> table.data thead tr th.author h3,
+      #hanger-widget<%= widget.id.to_s -%> table.data tbody tr td.author p {
+        width: 240px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
     </style>
     <div id="hanger-widget<%= widget.id.to_s -%>" class="hanger-widget<%= widget.id.to_s -%>">
       <div id="hanger-widget<%= widget.id.to_s -%>-loading">
@@ -248,46 +255,46 @@
               var $thead = $('#hanger-widget<%= widget.id.to_s -%> thead');
               var $tr = $('<tr></tr>');
 
-              $tr.append('<th><h3><%= message('widget.hanger.debtRatio.name') -%></h3></th>');
+              $tr.append('<th class="author"><h3><%= message('widget.hanger.debtRatio.name') -%></h3></th>');
 
               <% if (widget_properties["SeveritiesDisplay"]) %>
               if (/BLOCKER/.test(severities)) {
-                $tr.append('<th class="right"><i class="icon-severity-blocker"></i></th>');
+                $tr.append('<th class="severity right"><h3><i class="icon-severity-blocker"></i></h3></th>');
               }
 
               if (/CRITICAL/.test(severities)) {
-                $tr.append('<th class="right"><i class="icon-severity-critical"></i></th>');
+                $tr.append('<th class="severity right"><h3><i class="icon-severity-critical"></i></h3></th>');
               }
 
               if (/MAJOR/.test(severities)) {
-                $tr.append('<th class="right"><i class="icon-severity-major"></i></th>');
+                $tr.append('<th class="severity right"><h3><i class="icon-severity-major"></i></h3></th>');
               }
 
               if (/MINOR/.test(severities)) {
-                $tr.append('<th class="right"><i class="icon-severity-minor"></i></th>');
+                $tr.append('<th class="severity right"><h3><i class="icon-severity-minor"></i></h3></th>');
               }
 
               if (/INFO/.test(severities)) {
-                $tr.append('<th class="right"><i class="icon-severity-info"></i></th>');
+                $tr.append('<th class="severity right"><h3><i class="icon-severity-info"></i></h3></th>');
               }
               <% end %>
 
               <% if (widget_properties["CommitsDisplay"]) %>
-              $tr.append('<th class="right"><h3><%= message('widget.hanger.debtRatio.commits') -%></h3></th>');
+              $tr.append('<th class="commits right"><h3><%= message('widget.hanger.debtRatio.commits') -%></h3></th>');
               <% end %>
 
               <% if (widget_properties["DebtDisplay"]) %>
-              $tr.append('<th class="right"><h3><%= message('widget.hanger.debtRatio.debt') -%></h3></th>');
+              $tr.append('<th class="debt right"><h3><%= message('widget.hanger.debtRatio.debt') -%></h3></th>');
               <% end %>
 
-              $tr.append('<th class="right"><h3><%= message('widget.hanger.debtRatio.ratio') -%></h3></th>');
+              $tr.append('<th class="debt-ratio right"><h3><%= message('widget.hanger.debtRatio.ratio') -%></h3></th>');
 
               <% if (widget_properties["FirstCommitDisplay"]) %>
-              $tr.append('<th class="right"><h3><%= message('widget.hanger.debtRatio.first') -%></h3></th>');
+              $tr.append('<th class="first-commit right"><h3><%= message('widget.hanger.debtRatio.first') -%></h3></th>');
               <% end %>
 
               <% if (widget_properties["LastCommitDisplay"]) %>
-              $tr.append('<th class="right"><h3><%= message('widget.hanger.debtRatio.last') -%></h3></th>');
+              $tr.append('<th class="last-commit right"><h3><%= message('widget.hanger.debtRatio.last') -%></h3></th>');
               <% end %>
 
               $thead.append($tr);
@@ -298,46 +305,46 @@
                 var $tr = $('<tr class="' + (even ? 'even' : 'odd') + '"></tr>');
                 even = !even;
 
-                $tr.append('<td>' + elem.author + '</td>');
+                $tr.append('<td class="author"><p>' + elem.author + '</p></td>');
 
                 <% if (widget_properties["SeveritiesDisplay"]) %>
                 if (/BLOCKER/.test(severities)) {
-                  $tr.append('<td class="right">' + ('BLOCKER' in elem.severity ? elem.severity.BLOCKER : 0) + '</td>');
+                  $tr.append('<td class="severity right"><p>' + ('BLOCKER' in elem.severity ? elem.severity.BLOCKER : 0) + '</p></td>');
                 }
 
                 if (/CRITICAL/.test(severities)) {
-                  $tr.append('<td class="right">' + ('CRITICAL' in elem.severity ? elem.severity.CRITICAL : 0) + '</td>');
+                  $tr.append('<td class="severity right"><p>' + ('CRITICAL' in elem.severity ? elem.severity.CRITICAL : 0) + '</p></td>');
                 }
 
                 if (/MAJOR/.test(severities)) {
-                  $tr.append('<td class="right">' + ('MAJOR' in elem.severity ? elem.severity.MAJOR : 0) + '</td>');
+                  $tr.append('<td class="severity right"><p>' + ('MAJOR' in elem.severity ? elem.severity.MAJOR : 0) + '</p></td>');
                 }
 
                 if (/MINOR/.test(severities)) {
-                  $tr.append('<td class="right">' + ('MINOR' in elem.severity ? elem.severity.MINOR : 0) + '</td>');
+                  $tr.append('<td class="severity right"><p>' + ('MINOR' in elem.severity ? elem.severity.MINOR : 0) + '</p></td>');
                 }
 
                 if (/INFO/.test(severities)) {
-                  $tr.append('<td class="right">' + ('INFO' in elem.severity ? elem.severity.INFO : 0) + '</td>');
+                  $tr.append('<td class="severity right"><p>' + ('INFO' in elem.severity ? elem.severity.INFO : 0) + '</p></td>');
                 }
                 <% end %>
 
                 <% if (widget_properties["CommitsDisplay"]) %>
-                $tr.append('<td class="right">' + elem.commits + '</td>');
+                $tr.append('<td class="commits right"><p>' + elem.commits + '</p></td>');
                 <% end %>
 
                 <% if (widget_properties["DebtDisplay"]) %>
-                $tr.append('<td class="right">' + minToDebt(elem.debt) + '</td>');
+                $tr.append('<td class="debt right"><p>' + minToDebt(elem.debt) + '</p></td>');
                 <% end %>
 
-                $tr.append('<td class="right">' + elem.debtRatio.toFixed(2) + '</td>');
+                $tr.append('<td class="debt-ratio right"><p>' + elem.debtRatio.toFixed(2) + '</p></td>');
 
                 <% if (widget_properties["FirstCommitDisplay"]) %>
-                $tr.append('<td class="right">' + elem.firstCommit.toISOString().slice(0, 10) + '</td>');
+                $tr.append('<td class="first-commit right"><p>' + elem.firstCommit.toISOString().slice(0, 10) + '</p></td>');
                 <% end %>
 
                 <% if (widget_properties["LastCommitDisplay"]) %>
-                $tr.append('<td class="right">' + elem.lastCommit.toISOString().slice(0, 10) + '</td>');
+                $tr.append('<td class="last-commit right"><p>' + elem.lastCommit.toISOString().slice(0, 10) + '</p></td>');
                 <% end %>
 
                 $tbody.append($tr);
