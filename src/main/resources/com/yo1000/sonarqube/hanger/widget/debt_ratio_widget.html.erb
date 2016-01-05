@@ -48,6 +48,7 @@
         <tbody></tbody>
       </table>
     </div>
+    <script type="text/javascript" src="<%= ApplicationController.root_context -%>/static/hanger/Heatmap.js?v=<%= sonar_version -%>"></script>
     <script type="text/javascript">
       var widget<%= widget.id.to_s -%>Scope = function () {
         var SCM_AUTHOR_INDEX = 1;
@@ -59,9 +60,10 @@
         var commitsThreshold = <%= h(widget_properties["CommitsThreshold"]) -%>;
 
         var $ = jQuery;
-
         var $spanResourcesAll = $('#hanger-widget<%= widget.id.to_s -%>-loading .resources-all');
         var $spanResourcesDone = $('#hanger-widget<%= widget.id.to_s -%>-loading .resources-done');
+
+        var heatmap = new Heatmap();
 
         /**
          *
@@ -337,7 +339,7 @@
                 $tr.append('<td class="debt right"><p>' + minToDebt(elem.debt) + '</p></td>');
                 <% end %>
 
-                $tr.append('<td class="debt-ratio right"><p>' + elem.debtRatio.toFixed(2) + '</p></td>');
+                $tr.append('<td class="debt-ratio right"><p style="background-color:' + heatmap.color(elem.debtRatio) + ';">' + elem.debtRatio.toFixed(2) + '</p></td>');
 
                 <% if (widget_properties["FirstCommitDisplay"]) %>
                 $tr.append('<td class="first-commit right"><p>' + elem.firstCommit.toISOString().slice(0, 10) + '</p></td>');

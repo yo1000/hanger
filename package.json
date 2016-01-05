@@ -1,0 +1,16 @@
+{
+  "name": "Heatmap",
+  "version": "0.0.1",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha src/test/resources/static/**/*.js"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "mocha": "^2.2.5",
+    "power-assert": "^0.11.0"
+  },
+  "private": true
+}
+
+
